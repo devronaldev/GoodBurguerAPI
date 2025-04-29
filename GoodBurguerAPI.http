@@ -1,6 +1,3 @@
 @GoodBurguerAPI_HostAddress = http://localhost:5220
 
-GET {{GoodBurguerAPI_HostAddress}}/weatherforecast/
-Accept: application/json
-
 ###
