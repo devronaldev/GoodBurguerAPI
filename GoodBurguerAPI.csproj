@@ -21,15 +21,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Configurations\" />
       <Folder Include="Controllers\" />
       <Folder Include="DTOs\Request\" />
       <Folder Include="DTOs\Response\" />
-      <Folder Include="Models\" />
     </ItemGroup>
 
     <ItemGroup>
       <Compile Remove="Controllers\WeatherForecastController.cs" />
+      <Compile Remove="README.md.cs" />
     </ItemGroup>
 
 </Project>
