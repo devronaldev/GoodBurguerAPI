@@ -5,7 +5,7 @@ namespace GoodBurguerAPI.Models;
 /// <summary>
 /// Represents an item that can be part of an order, such as a sandwich or an extra.
 /// </summary>
-public class Item
+public sealed class Item
 {
     /// <summary>
     /// Identifier of the item.

@@ -13,6 +13,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 });
 builder.Services.AddSwaggerGen();
 
+// TODO: Create the Database builder.
+
 var app = builder.Build();
 
 app.UseSwagger();

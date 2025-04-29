@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents an order with a sandwich and/or an extra with its payment price.
 /// </summary>
-public class Order
+public sealed class Order
 {
     /// <summary>
     /// Identifier of the order.
