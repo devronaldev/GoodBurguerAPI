@@ -4,6 +4,8 @@
         <TargetFramework>net8.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>bin\Debug\net8.0\GoodBurguerAPI.xml</DocumentationFile>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,12 +20,6 @@
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Controllers\" />
-      <Folder Include="DTOs\Request\" />
-      <Folder Include="DTOs\Response\" />
     </ItemGroup>
 
     <ItemGroup>
