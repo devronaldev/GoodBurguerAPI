@@ -11,7 +11,12 @@ public enum EItemType
     Sandwich = 0,
 
     /// <summary>
-    /// Represents an extra item (Fries or soda).
+    /// Represents an extra item.
     /// </summary>
-    Extra = 1
+    Extra = 1,
+    
+    /// <summary>
+    /// Represents an extra item.
+    /// </summary>
+    Drink = 2
 }
