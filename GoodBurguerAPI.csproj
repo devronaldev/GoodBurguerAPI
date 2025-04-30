@@ -21,10 +21,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="DTOs\Response\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="Controllers\WeatherForecastController.cs" />
       <Compile Remove="README.md.cs" />
     </ItemGroup>

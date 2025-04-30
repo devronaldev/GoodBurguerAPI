@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using GoodBurguerAPI.Configurations;
 using GoodBurguerAPI.DTOs.Request;
+using GoodBurguerAPI.DTOs.Response;
 using GoodBurguerAPI.Models;
 using GoodBurguerAPI.Models.Enum;
 using Microsoft.AspNetCore.Mvc;
@@ -13,7 +14,7 @@ public class OrderController(AppDbContext context) : ControllerBase
 {
     private readonly AppDbContext _context = context;
 
-    [HttpGet("items")]
+    [HttpGet("item")]
     public async Task<ActionResult<List<Item>>> GetAllItemsAsync()
     {
         try
@@ -30,13 +31,13 @@ public class OrderController(AppDbContext context) : ControllerBase
         {
             return StatusCode(500, new
             {
-                Message = "An error occured, please try again later.",
+                Message = "An error occurred, please try again later.",
                 Detail = e.Message
             });
         }
     }
 
-    [HttpGet("sandwichs")]
+    [HttpGet("sandwich")]
     public async Task<ActionResult<List<Item>>> GetSandwichsAsync()
     {
         try
@@ -54,13 +55,13 @@ public class OrderController(AppDbContext context) : ControllerBase
         {
             return StatusCode(500, new
             {
-                Message = "An error occured, please try again later.",
+                Message = "An error occurred, please try again later.",
                 Detail = e.Message
             });
         }
     }
 
-    [HttpGet("extras")]
+    [HttpGet("extra")]
     public async Task<ActionResult<List<Item>>> GetExtrasAsync()
     {
         try
@@ -78,14 +79,14 @@ public class OrderController(AppDbContext context) : ControllerBase
         {
             return StatusCode(500, new
             {
-                Message = "An error occured, please try again later.",
+                Message = "An error occurred, please try again later.",
                 Detail = e.Message
             });
         }
     }
 
-    [HttpPost("order")]
-    public async Task<ActionResult<Order>> PostOrderAsync(CreateOrderDTO dto)
+    [HttpPost]
+    public async Task<ActionResult<OrderPriceDTO>> PostOrderAsync(CreateOrderDTO dto)
     {
         if (dto.SandwichId == null && dto.ExtraId == null && dto.DrinkId == null)
         {
@@ -100,7 +101,7 @@ public class OrderController(AppDbContext context) : ControllerBase
             var order = await CreateOrderAsync(dto);
             _context.Orders.Add(order);
             await _context.SaveChangesAsync();
-            return Ok(order);
+            return Created("orderPrice", (OrderPriceDTO)order);
         }
         catch (ArgumentException e)
         {
@@ -113,9 +114,111 @@ public class OrderController(AppDbContext context) : ControllerBase
         {
             return StatusCode(500, new
             {
-                Message = "An error occured, please try again later.",
+                Message = "An error occurred, please try again later.",
                 Detail = e.Message
             });
+        }
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<List<Order>>> GetOrdersAsync()
+    {
+        try
+        {
+            var orders = await _context.Orders.ToListAsync();
+            return Ok(orders);
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new
+            {
+                Message = "An error occurred, please try again later.",
+                Detail = e.Message
+            });
+        }
+    }
+
+    [HttpPut]
+    public async Task<ActionResult> PutOrderAsync(UpdateOrderDTO dto)
+    {
+        if (dto.SandwichId == null && dto.ExtraId == null && dto.DrinkId == null)
+        {
+            return BadRequest(new
+            {
+                Message = "At least one item (Sandwich, Extra, or Drink) must be provided."
+            });
+        }
+
+        try
+        {
+            var updateOrder = await CreateOrderAsync(dto);
+            var order = await _context.Orders.FirstOrDefaultAsync(x => x.OrderId == dto.OrderId);
+            
+            if (order == null)
+            {
+                return NotFound(new
+                {
+                    Message = "Order not found.",
+                    Detail = "The order was not found. Verify if the database is properly configured."
+                });
+            }
+            order.Sandwich = updateOrder.Sandwich;
+            order.Extra = updateOrder.Extra;
+            order.Drink = updateOrder.Drink;
+            order.Price = updateOrder.Price;
+
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+        catch (ArgumentException e)
+        {
+            return BadRequest(new
+            {
+                Message = e.Message
+            });
+        }
+        catch (Exception e)
+        {
+            return StatusCode(500, new
+            {
+                Message = "An error occurred, please try again later.",
+                Detail = e.Message
+            });
+        }
+    }
+
+    [HttpDelete("{orderId}")]
+    public async Task<ActionResult> DeleteOrderAsync(int orderId)
+    {
+        if (orderId == 0)
+        {
+            return BadRequest(new
+            {
+                Message = "The orderId is required.",
+                Detail = "The orderId is required. Verify if your input is correctly configured."
+            });
+        }
+
+        try
+        {
+            var deleteOrder = await _context.Orders.FirstOrDefaultAsync(x => x.OrderId == orderId);
+            if (deleteOrder == null)
+            {
+                return NotFound(new
+                {
+                    Message = "Order not found.",
+                    Detail = "The order was not found. Verify if the database is properly configured."
+                });
+            }
+            
+            _context.Orders.Remove(deleteOrder);
+            await _context.SaveChangesAsync();
+            return NoContent();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
         }
     }
     
