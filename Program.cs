@@ -1,3 +1,4 @@
+using System.Reflection;
 using GoodBurguerAPI.Configurations;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +12,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 {
     options.UseSqlite($"Filename={dbPath}");
 });
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(x =>
+{
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    x.IncludeXmlComments(xmlPath);
+});
 
 // TODO: Create the Database builder.
 
