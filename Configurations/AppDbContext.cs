@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using GoodBurguerAPI.Configurations.ModelsConfiguration;
+using Microsoft.EntityFrameworkCore;
 using GoodBurguerAPI.Models;
 
 namespace GoodBurguerAPI.Configurations
@@ -17,5 +18,12 @@ namespace GoodBurguerAPI.Configurations
         /// Gets or sets the collection of <see cref="Order"/> entities in the database.
         /// </summary>
         public DbSet<Order> Orders { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new OrderConfiguration());
+            modelBuilder.ApplyConfiguration(new ItemConfiguration());
+        }
     }
 }
