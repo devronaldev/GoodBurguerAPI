@@ -104,7 +104,7 @@ namespace GoodBurguerAPI.Controllers
         {
             try
             {
-                var items = await GetItemsAsync(filter: x => x.ItemType == EItemType.Extra);
+                var items = await GetItemsAsync(filter:(x => x.ItemType == EItemType.Extra || x.ItemType == EItemType.Drink));
 
                 if (!items.Any())
                 {
@@ -184,7 +184,7 @@ namespace GoodBurguerAPI.Controllers
         /// <response code="204">If there are no orders in the database.</response>
         /// <response code="500">If an unexpected error occurs while retrieving the data.</response>
         [Produces("application/json")]
-        [ProducesResponseType(typeof(List<Order>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(List<ViewOrderDTO>), StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ErrorDTO),StatusCodes.Status500InternalServerError)]
         [HttpGet]
@@ -192,7 +192,19 @@ namespace GoodBurguerAPI.Controllers
         {
             try
             {
-                var orders = await _context.Orders.ToListAsync();
+                var orders = await _context.Orders
+                    .Include(x => x.Sandwich)
+                    .Include(x => x.Extra)
+                    .Include(x => x.Drink)
+                    .Select(x => new ViewOrderDTO
+                    {
+                        OrderId = x.OrderId,
+                        Price = x.Price,
+                        Sandwich = x.Sandwich,
+                        Extra = x.Extra,
+                        Drink = x.Drink
+                    })
+                    .ToListAsync();
                 if (!orders.Any())
                 {
                     return NoContent();
@@ -356,18 +368,33 @@ namespace GoodBurguerAPI.Controllers
                 ? await _context.Items.FindAsync(dto.SandwichId.Value)
                 : null;
 
+            if (sandwich != null && sandwich.ItemType != EItemType.Sandwich)
+            {
+                throw new ArgumentException("The type of the sandwich is not a valid item type.");
+            }
+
             var extra = dto.ExtraId.HasValue
                 ? await _context.Items.FindAsync(dto.ExtraId.Value)
                 : null;
+
+            if (extra != null && extra.ItemType != EItemType.Extra)
+            {
+                throw new ArgumentException("The type of the extra is not a valid item type.");
+            }
 
             var drink = dto.DrinkId.HasValue
                 ? await _context.Items.FindAsync(dto.DrinkId.Value)
                 : null;
 
-            // Verify if the types of items are different.
-            if ((sandwich?.ItemType == extra?.ItemType) ||
-                (extra?.ItemType == drink?.ItemType) ||
-                (sandwich?.ItemType == drink?.ItemType))
+            if (drink != null && drink.ItemType != EItemType.Drink)
+            {
+                throw new ArgumentException("The type of the drink is not a valid item type.");
+            }
+            
+            // Verify if any two non-null items share the same type
+            if ((sandwich != null && extra != null && sandwich.ItemType == extra.ItemType) ||
+                (extra != null && drink != null && extra.ItemType == drink.ItemType) ||
+                (sandwich != null && drink != null && sandwich.ItemType == drink.ItemType))
             {
                 throw new ArgumentException("You have repeated items of the same type");
             }
